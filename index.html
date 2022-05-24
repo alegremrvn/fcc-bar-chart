@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>D3 Bar Chart</title>
+    <meta charset="utf-8">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+      svg {
+        background-color: #eeeee4;
+      }
+    </style>
+  </head>
+
+  <body>
+    <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
+
+    <!-- Loading of the dataset. -->
+    <script>
+      const req = new XMLHttpRequest()
+      req.open("GET","https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/GDP-data.json",true)
+      req.send()
+      let dataset
+      req.onload = function() {
+        const json = JSON.parse(req.responseText)
+        dataset = json.data
+      }
+    </script>
+
+    <h1 id="title">United States GDP</h1>
+
+    <!-- A delay was introduced to not hardcode the data. -->
+    <script>
+      setTimeout(() => {
+        const w = 275 * 3
+        const h = 500
+        let svg = d3.select("body")
+          .append("svg")
+          .attr("width",w)
+          .attr("height",h)
+        
+        const yScale = d3.scaleLinear()
+          .domain([0,d3.max(dataset,(d) => d[1])])
+          .range([0,h])
+
+        const xScale = d3.scaleTime()
+          .domain([new Date(dataset[0][0]),new Date(dataset[dataset.length - 1][0])])
+          .range([0,w])
+
+        
+      },1000)
+    </script>
+  </body>
+</html>
