@@ -8,6 +8,12 @@
       svg {
         background-color: #eeeee4;
       }
+      .bar {
+        fill: yellowgreen
+      }
+      .bar:hover {
+        fill: white
+      }
     </style>
   </head>
 
@@ -31,23 +37,71 @@
     <!-- A delay was introduced to not hardcode the data. -->
     <script>
       setTimeout(() => {
-        const w = 275 * 3
+        const barWidth = 4
+        const w = 275 * barWidth
         const h = 500
+        const padding = 50
+        const tooltipHeight = 400
         let svg = d3.select("body")
           .append("svg")
-          .attr("width",w)
-          .attr("height",h)
+            .attr("width",w + 2 * padding)
+            .attr("height",h + 2 * padding)
         
         const yScale = d3.scaleLinear()
           .domain([0,d3.max(dataset,(d) => d[1])])
-          .range([0,h])
+          .range([h,0])
 
         const xScale = d3.scaleTime()
-          .domain([new Date(dataset[0][0]),new Date(dataset[dataset.length - 1][0])])
+          .domain([new Date("1947-01-01"),new Date("2015-10-01")])
           .range([0,w])
 
-        
-      },1000)
+        const handleMouseleave = function(event) {
+          d3.selectAll("#tooltip")
+            .remove()
+        }        
+
+        const handleMouseover = function(event) {
+          d3.select(this)
+            .on("mouseleave",handleMouseleave)
+
+          const thisX = d3.select(this)
+            .attr("x")
+
+          const thisDataDate = d3.select(this)
+            .attr("data-date")
+          
+          svg.append("text")
+          .attr("x",thisX)
+          .attr("y",tooltipHeight)
+          .attr("id","tooltip")
+          .attr("data-date",thisDataDate)
+          .text(thisDataDate)
+        }
+
+        svg.selectAll("rect")
+          .data(dataset)
+          .enter()
+          .append("rect")
+            .attr("class","bar")
+            .attr("width",barWidth)
+            .attr("height",(d) => h - yScale(d[1]))
+            .attr("x",(d,i) => i * barWidth + padding)
+            .attr("y",(d) => padding + yScale(d[1]))
+            .attr("data-date",(d) => d[0])
+            .attr("data-gdp",(d) => d[1])
+          .on("mouseover",handleMouseover)
+
+        const yAxis = d3.axisLeft(yScale)
+        svg.append("g")
+          .attr("transform","translate(" + padding + "," + padding + ")")
+          .attr("id","y-axis")
+          .call(yAxis)
+        const xAxis = d3.axisBottom(xScale)
+        svg.append("g")
+          .attr("transform","translate(" + padding + "," + (padding + h) + ")")
+          .attr("id","x-axis")
+          .call(xAxis)
+      },600)
     </script>
   </body>
 </html>
